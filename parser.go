@@ -22,6 +22,9 @@ func Parse(tagString string) (map[string]string, error) {
 
 		if inKeyParsing {
 			if unicode.IsSpace(r) {
+				if len(key) > 0 {
+					return nil, errors.New("invalid custom tag syntax: key must not contain any white space, but it contains")
+				}
 				continue
 			}
 

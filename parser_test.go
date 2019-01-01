@@ -98,3 +98,9 @@ func TestShouldRaiseErrorWhenValueIsNotTerminated(t *testing.T) {
 		t.Fatal("expected error has not raised")
 	}
 }
+
+func TestShouldRaiseErrorWhenKeyContainsWhiteSpace(t *testing.T) {
+	if _, err := Parse(`foo:"bar"  bu z:"qux"`); err == nil {
+		t.Fatal("expected error has not raised")
+	}
+}
