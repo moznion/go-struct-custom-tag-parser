@@ -7,8 +7,10 @@ import (
 
 // Parse parses a custom tag string.
 func Parse(tagString string) (map[string]string, error) {
-	key := make([]rune, 0)
-	value := make([]rune, 0)
+	key := make([]rune, 0, 100)
+	keyCursor := 0
+	value := make([]rune, 0, 100)
+	valueCursor := 0
 	inKeyParsing := true
 	isEscaping := false
 	var valueTerminator rune
@@ -22,14 +24,14 @@ func Parse(tagString string) (map[string]string, error) {
 
 		if inKeyParsing {
 			if unicode.IsSpace(r) {
-				if len(key) > 0 {
+				if keyCursor > 0 {
 					return nil, errors.New("invalid custom tag syntax: key must not contain any white space, but it contains")
 				}
 				continue
 			}
 
 			if r == ':' {
-				if len(key) <= 0 {
+				if keyCursor <= 0 {
 					return nil, errors.New("invalid custom tag syntax: key must not be empty, but it gets empty")
 				}
 
@@ -42,14 +44,17 @@ func Parse(tagString string) (map[string]string, error) {
 				continue
 			}
 			key = append(key, r)
+			keyCursor++
 			continue
 		}
 
 		// value parsing
 		if !isEscaping && r == valueTerminator {
-			tagKeyValue[string(key)] = string(value)
-			key = make([]rune, 0)
-			value = make([]rune, 0)
+			tagKeyValue[string(key[:keyCursor])] = string(value[:valueCursor])
+			key = key[:0]
+			keyCursor = 0
+			value = value[:0]
+			valueCursor = 0
 			inKeyParsing = true
 			continue
 		}
@@ -60,15 +65,17 @@ func Parse(tagString string) (map[string]string, error) {
 		}
 		value = append(value, r)
 		isEscaping = false
+		valueCursor++
 	}
 
-	if inKeyParsing && len(key) > 0 {
+	if inKeyParsing && keyCursor > 0 {
 		return nil, errors.New("invalid custom tag syntax: a delimiter of key and value is missing")
 	}
 
-	if !inKeyParsing && len(value) > 0 {
+	if !inKeyParsing && valueCursor > 0 {
 		return nil, errors.New("invalid custom tag syntax: a value is not terminated with quote")
 	}
 
 	return tagKeyValue, nil
+
 }
