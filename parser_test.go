@@ -75,6 +75,28 @@ func TestPragmaticExample(t *testing.T) {
 	}
 }
 
+func TestWithMultiByte(t *testing.T) {
+	result, err := Parse(`foo:"bar" buz:"qux,すごい,foobar"`)
+	if err != nil {
+		t.Fatalf("unexpected error has come: %s", err)
+	}
+
+	if mapLen := len(result); len(result) != 2 {
+		t.Fatalf("unexpected length of got map: got = %d", mapLen)
+	}
+
+	expectedDataset := map[string]string{
+		"foo": "bar",
+		"buz": "qux,すごい,foobar",
+	}
+
+	for key, expected := range expectedDataset {
+		if got := result[key]; got != expected {
+			t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
+		}
+	}
+}
+
 func TestShouldRaiseErrorWhenKeyIsEmpty(t *testing.T) {
 	if _, err := Parse(`foo:"bar" :"qux"`); err == nil {
 		t.Fatal("expected error has not raised")
