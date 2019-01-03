@@ -7,26 +7,44 @@ import (
 
 // Parse parses a custom tag string.
 func Parse(tagString string) (map[string]string, error) {
-	key := make([]rune, 0, 100)
+	key := make([]byte, 0, 100)
 	keyCursor := 0
-	value := make([]rune, 0, 100)
+	value := make([]byte, 0, 100)
 	valueCursor := 0
 	inKeyParsing := true
 	isEscaping := false
+	justSplited := false
 	var valueTerminator rune
 
 	tagKeyValue := make(map[string]string)
 
-	tagRunes := []rune(tagString)
-	tagRunesLen := len(tagRunes)
-	for i := 0; i < tagRunesLen; i++ {
-		r := tagRunes[i]
+	bs := []byte(tagString)
+	previousIndex := -1
+	i := 0
+
+	for pos, r := range tagString {
+		if justSplited {
+			valueTerminator = r
+
+			i += pos - previousIndex
+			if i >= len(bs) {
+				return nil, errors.New("invalid custom tag syntax: value must not be empty, but it gets empty")
+			}
+			previousIndex = pos
+
+			inKeyParsing = false
+			justSplited = false
+
+			continue
+		}
 
 		if inKeyParsing {
 			if unicode.IsSpace(r) {
 				if keyCursor > 0 {
 					return nil, errors.New("invalid custom tag syntax: key must not contain any white space, but it contains")
 				}
+				i += pos - previousIndex
+				previousIndex = pos
 				continue
 			}
 
@@ -35,16 +53,20 @@ func Parse(tagString string) (map[string]string, error) {
 					return nil, errors.New("invalid custom tag syntax: key must not be empty, but it gets empty")
 				}
 
-				inKeyParsing = false
-				i++
-				if i >= tagRunesLen {
-					return nil, errors.New("invalid custom tag syntax: value must not be empty, but it gets empty")
-				}
-				valueTerminator = tagRunes[i]
+				justSplited = true
+
+				i += pos - previousIndex
+				previousIndex = pos
+
 				continue
 			}
-			key = append(key, r)
+
+			for j := 0; j < (pos - previousIndex); i, j = i+1, j+1 {
+				key = append(key, bs[i])
+			}
+
 			keyCursor++
+			previousIndex = pos
 			continue
 		}
 
@@ -56,16 +78,26 @@ func Parse(tagString string) (map[string]string, error) {
 			value = value[:0]
 			valueCursor = 0
 			inKeyParsing = true
+
+			i += pos - previousIndex
+			previousIndex = pos
 			continue
 		}
 
 		if r == '\\' {
 			isEscaping = true
+			i += pos - previousIndex
+			previousIndex = pos
 			continue
 		}
-		value = append(value, r)
+
+		for j := 0; j < (pos - previousIndex); i, j = i+1, j+1 {
+			value = append(value, bs[i])
+		}
+
 		isEscaping = false
 		valueCursor++
+		previousIndex = pos
 	}
 
 	if inKeyParsing && keyCursor > 0 {
