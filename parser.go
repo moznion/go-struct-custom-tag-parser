@@ -36,6 +36,7 @@ func Parse(tagString string, isStrict bool) (map[string]string, error) {
 					if isStrict {
 						return nil, errors.New("invalid custom tag syntax: key must not contain any white space, but it contains")
 					}
+					// give up when key contain any white space
 					break
 				}
 				continue
@@ -55,7 +56,7 @@ func Parse(tagString string, isStrict bool) (map[string]string, error) {
 						return nil, errors.New("invalid custom tag syntax: key must not be empty, but it gets empty")
 					}
 
-					// if empty key has come, it should give up
+					// give up when key is empty
 					break
 				}
 
@@ -65,12 +66,14 @@ func Parse(tagString string, isStrict bool) (map[string]string, error) {
 					if isStrict {
 						return nil, errors.New("invalid custom tag syntax: value must not be empty, but it gets empty")
 					}
+					// give up when value is empty
 					break
 				}
 				if tagRunes[i] != valueQuote {
 					if isStrict {
 						return nil, errors.New("invalid custom tag syntax: quote for value is missing")
 					}
+					// give up when value isn't wrapped by double quote
 					break
 				}
 				continue
