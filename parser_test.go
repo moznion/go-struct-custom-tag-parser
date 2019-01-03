@@ -1,22 +1,32 @@
 package tagparser
 
 import (
+	"reflect"
 	"testing"
 )
 
-func TestBasic(t *testing.T) {
-	result, err := Parse(`foo:"bar" buz:"qux,foo  bar"`, true)
+func TestBasic_strict(t *testing.T) {
+	customTag := `foo:"bar" buz:"qux,foo  bar"`
+	type Item struct {
+		elem bool `foo:"bar" buz:"qux,foo  bar"`
+	}
+
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
+	expectedDataset := map[string]string{
+		"foo": field.Tag.Get("foo"),
+		"buz": field.Tag.Get("buz"),
+	}
+
+	result, err := Parse(customTag, true)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
 
-	if mapLen := len(result); len(result) != 2 {
+	if mapLen := len(result); mapLen != 2 {
 		t.Fatalf("unexpected length of got map: got = %d", mapLen)
-	}
-
-	expectedDataset := map[string]string{
-		"foo": "bar",
-		"buz": "qux,foo  bar",
 	}
 
 	for key, expected := range expectedDataset {
@@ -27,7 +37,22 @@ func TestBasic(t *testing.T) {
 }
 
 func TestWithEscaping(t *testing.T) {
-	result, err := Parse(`foo:"bar" buz:"qux\"foo\\bar" hoge:"fuga"`, true)
+	customTag := `foo:"bar" buz:"qux\"foo\\bar" hoge:"fuga"`
+	type Item struct {
+		elem bool `foo:"bar" buz:"qux\"foo\\bar" hoge:"fuga"`
+	}
+
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
+	expectedDataset := map[string]string{
+		"foo":  field.Tag.Get("foo"),
+		"buz":  field.Tag.Get("buz"),
+		"hoge": field.Tag.Get("hoge"),
+	}
+
+	result, err := Parse(customTag, true)
 
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
@@ -35,12 +60,6 @@ func TestWithEscaping(t *testing.T) {
 
 	if mapLen := len(result); len(result) != 3 {
 		t.Fatalf("unexpected length of got map: got = %d", mapLen)
-	}
-
-	expectedDataset := map[string]string{
-		"foo":  "bar",
-		"buz":  `qux"foo\bar`,
-		"hoge": "fuga",
 	}
 
 	for key, expected := range expectedDataset {
@@ -51,7 +70,23 @@ func TestWithEscaping(t *testing.T) {
 }
 
 func TestPragmaticExample(t *testing.T) {
-	result, err := Parse(`protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty" datastore:"email" goon:"id"`, true)
+	customTag := `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty" datastore:"email" goon:"id"`
+	type Item struct {
+		elem bool `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty" datastore:"email" goon:"id"`
+	}
+
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
+	expectedDataset := map[string]string{
+		"protobuf":  field.Tag.Get("protobuf"),
+		"json":      field.Tag.Get("json"),
+		"datastore": field.Tag.Get("datastore"),
+		"goon":      field.Tag.Get("goon"),
+	}
+
+	result, err := Parse(customTag, true)
 
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
@@ -59,13 +94,6 @@ func TestPragmaticExample(t *testing.T) {
 
 	if mapLen := len(result); len(result) != 4 {
 		t.Fatalf("unexpected length of got map: got = %d", mapLen)
-	}
-
-	expectedDataset := map[string]string{
-		"protobuf":  "bytes,1,opt,name=email,proto3",
-		"json":      "email,omitempty",
-		"datastore": "email",
-		"goon":      "id",
 	}
 
 	for key, expected := range expectedDataset {
@@ -76,18 +104,27 @@ func TestPragmaticExample(t *testing.T) {
 }
 
 func TestWithMultiByte(t *testing.T) {
-	result, err := Parse(`foo:"bar" buz:"qux,すごい,foobar"`, true)
+	customTag := `はい:"bar" buz:"qux,すごい,foobar"`
+	type Item struct {
+		elem bool `はい:"bar" buz:"qux,すごい,foobar"`
+	}
+
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
+	expectedDataset := map[string]string{
+		"はい":  field.Tag.Get("はい"),
+		"buz": field.Tag.Get("buz"),
+	}
+
+	result, err := Parse(customTag, true)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
 
 	if mapLen := len(result); len(result) != 2 {
 		t.Fatalf("unexpected length of got map: got = %d", mapLen)
-	}
-
-	expectedDataset := map[string]string{
-		"foo": "bar",
-		"buz": "qux,すごい,foobar",
 	}
 
 	for key, expected := range expectedDataset {
@@ -137,7 +174,19 @@ func TestGiveUpWhenKeyIsOmitted(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" :"qux" foobar:"hoge"`, false)
+	customTag := `foo:"bar" :"qux" foobar:"hoge"`
+	type Item struct {
+		elem bool `foo:"bar" :"qux" foobar:"hoge"`
+	}
+
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
+	key := "foo"
+	expected := field.Tag.Get(key)
+
+	result, err = Parse(customTag, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -146,8 +195,6 @@ func TestGiveUpWhenKeyIsOmitted(t *testing.T) {
 		t.Fatalf("unexpected length of got map: got = %d", mapLen)
 	}
 
-	key := "foo"
-	expected := "bar"
 	if got := result[key]; got != expected {
 		t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
 	}
@@ -169,7 +216,19 @@ func TestGiveUpWhenValueQuoteIsMissing(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" buz:qux" foobar:"hoge"`, false)
+	customTag := `foo:"bar" buz:qux" foobar:"hoge"`
+	type Item struct {
+		elem bool `foo:"bar" buz:qux" foobar:"hoge"`
+	}
+
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
+	key := "foo"
+	expected := field.Tag.Get(key)
+
+	result, err = Parse(customTag, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -178,8 +237,6 @@ func TestGiveUpWhenValueQuoteIsMissing(t *testing.T) {
 		t.Fatalf("unexpected length of got map: got = %d", mapLen)
 	}
 
-	key := "foo"
-	expected := "bar"
 	if got := result[key]; got != expected {
 		t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
 	}
@@ -195,7 +252,19 @@ func TestGiveUpWhenValueIsMissing(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" buz:`, false)
+	customTag := `foo:"bar" buz:`
+	type Item struct {
+		elem bool `foo:"bar" buz:`
+	}
+
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
+	key := "foo"
+	expected := field.Tag.Get(key)
+
+	result, err = Parse(customTag, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -204,8 +273,6 @@ func TestGiveUpWhenValueIsMissing(t *testing.T) {
 		t.Fatalf("unexpected length of got map: got = %d", mapLen)
 	}
 
-	key := "foo"
-	expected := "bar"
 	if got := result[key]; got != expected {
 		t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
 	}
@@ -221,7 +288,19 @@ func TestGiveUpWhenKeyContainsWhiteSpace(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" b uz:"qux" foobar:"hoge"`, false)
+	customTag := `foo:"bar" b uz:"qux" foobar:"hoge"`
+	type Item struct {
+		elem bool `foo:"bar" b uz:"qux" foobar:"hoge"`
+	}
+
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
+	key := "foo"
+	expected := field.Tag.Get(key)
+
+	result, err = Parse(customTag, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -230,8 +309,6 @@ func TestGiveUpWhenKeyContainsWhiteSpace(t *testing.T) {
 		t.Fatalf("unexpected length of got map: got = %d", mapLen)
 	}
 
-	key := "foo"
-	expected := "bar"
 	if got := result[key]; got != expected {
 		t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
 	}
@@ -257,7 +334,19 @@ func TestGiveUpWhenKeyContainsDoubleQuote(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" "buz":"qux" foobar:"hoge"`, false)
+	customTag := `foo:"bar" "buz":"qux" foobar:"hoge"`
+	type Item struct {
+		elem bool `foo:"bar" "buz":"qux" foobar:"hoge"`
+	}
+
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
+	key := "foo"
+	expected := field.Tag.Get(key)
+
+	result, err = Parse(customTag, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -266,8 +355,6 @@ func TestGiveUpWhenKeyContainsDoubleQuote(t *testing.T) {
 		t.Fatalf("unexpected length of got map: got = %d", mapLen)
 	}
 
-	key := "foo"
-	expected := "bar"
 	if got := result[key]; got != expected {
 		t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
 	}
@@ -283,7 +370,19 @@ func TestGiveUpWhenKeyIsNotTerminated(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" buz`, false)
+	customTag := `foo:"bar" buz`
+	type Item struct {
+		elem bool `foo:"bar" buz`
+	}
+
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
+	key := "foo"
+	expected := field.Tag.Get(key)
+
+	result, err = Parse(customTag, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -292,8 +391,6 @@ func TestGiveUpWhenKeyIsNotTerminated(t *testing.T) {
 		t.Fatalf("unexpected length of got map: got = %d", mapLen)
 	}
 
-	key := "foo"
-	expected := "bar"
 	if got := result[key]; got != expected {
 		t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
 	}
@@ -309,7 +406,19 @@ func TestGiveUpWhenValueIsNotTerminated(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" "buz":"qux`, false)
+	customTag := `foo:"bar" "buz":"qux`
+	type Item struct {
+		elem bool `foo:"bar" "buz":"qux`
+	}
+
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
+	key := "foo"
+	expected := field.Tag.Get(key)
+
+	result, err = Parse(customTag, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -318,22 +427,29 @@ func TestGiveUpWhenValueIsNotTerminated(t *testing.T) {
 		t.Fatalf("unexpected length of got map: got = %d", mapLen)
 	}
 
-	key := "foo"
-	expected := "bar"
 	if got := result[key]; got != expected {
 		t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
 	}
 }
 
 func TestDuplicatedKey(t *testing.T) {
-	result, err := Parse(`foo:"bar" hoge:"" foo:"buz" hoge:"test"`, true)
-	if err != nil {
-		t.Fatalf("unexpected error has come: %s", err)
+	customTag := `foo:"bar" hoge:"" foo:"buz" hoge:"test"`
+	type Item struct {
+		elem bool `foo:"bar" hoge:"" foo:"buz" hoge:"test"`
 	}
 
+	item := Item{elem: true}
+	typ := reflect.TypeOf(item)
+	field := typ.Field(0)
+
 	expectedDataset := map[string]string{
-		"foo":  "bar",
-		"hoge": "",
+		"foo":  field.Tag.Get("foo"),
+		"hoge": field.Tag.Get("hoge"),
+	}
+
+	result, err := Parse(customTag, true)
+	if err != nil {
+		t.Fatalf("unexpected error has come: %s", err)
 	}
 
 	for key, expected := range expectedDataset {
