@@ -5,6 +5,8 @@ import (
 	"unicode"
 )
 
+const valueQuote = '"'
+
 func Parse(tagString string) (map[string]string, error) {
 	return parse(tagString, false)
 }
@@ -23,7 +25,6 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 
 	inKeyParsing := true
 	isEscaping := false
-	var valueTerminator rune
 
 	tagKeyValue := make(map[string]string)
 
@@ -53,9 +54,15 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 				inKeyParsing = false
 				i++
 				if i >= tagRunesLen {
+					// TODO
 					return nil, errors.New("invalid custom tag syntax: value must not be empty, but it gets empty")
 				}
-				valueTerminator = tagRunes[i]
+				if tagRunes[i] != valueQuote {
+					if isStrict {
+						return nil, errors.New("invalid custom tag syntax: quote for value is missing")
+					}
+					return tagKeyValue, nil
+				}
 				continue
 			}
 			key = append(key, r)
@@ -64,7 +71,7 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 		}
 
 		// value parsing
-		if !isEscaping && r == valueTerminator {
+		if !isEscaping && r == valueQuote {
 			tagKeyValue[string(key[:keyCursor])] = string(value[:valueCursor])
 			key = key[:0]
 			keyCursor = 0
