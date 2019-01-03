@@ -54,8 +54,10 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 				inKeyParsing = false
 				i++
 				if i >= tagRunesLen {
-					// TODO
-					return nil, errors.New("invalid custom tag syntax: value must not be empty, but it gets empty")
+					if isStrict {
+						return nil, errors.New("invalid custom tag syntax: value must not be empty, but it gets empty")
+					}
+					return tagKeyValue, nil
 				}
 				if tagRunes[i] != valueQuote {
 					if isStrict {

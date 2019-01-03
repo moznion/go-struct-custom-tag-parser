@@ -184,3 +184,29 @@ func TestGiveUpWhenValueQuoteIsMissing(t *testing.T) {
 		t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
 	}
 }
+
+func TestGiveUpWhenValueIsMissing(t *testing.T) {
+	result, err := Parse(`foo:`)
+	if err != nil {
+		t.Fatalf("unexpected error has come: %s", err)
+	}
+
+	if mapLen := len(result); mapLen != 0 {
+		t.Fatal("got non empty map")
+	}
+
+	result, err = Parse(`foo:"bar" buz:`)
+	if err != nil {
+		t.Fatalf("unexpected error has come: %s", err)
+	}
+
+	if mapLen := len(result); mapLen != 1 {
+		t.Fatalf("unexpected length of got map: got = %d", mapLen)
+	}
+
+	key := "foo"
+	expected := "bar"
+	if got := result[key]; got != expected {
+		t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
+	}
+}
