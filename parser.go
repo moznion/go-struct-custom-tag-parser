@@ -66,6 +66,12 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 		}
 
 		if r == '\\' {
+			if isEscaping {
+				value = append(value, r)
+				valueCursor++
+				isEscaping = false
+				continue
+			}
 			isEscaping = true
 			continue
 		}

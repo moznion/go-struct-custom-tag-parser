@@ -27,7 +27,7 @@ func TestBasic(t *testing.T) {
 }
 
 func TestWithEscaping(t *testing.T) {
-	result, err := ParseStrict(`foo:"bar" buz:"qux\"foobar" hoge:"fuga"`)
+	result, err := ParseStrict(`foo:"bar" buz:"qux\"foo\\bar" hoge:"fuga"`)
 
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
@@ -39,7 +39,7 @@ func TestWithEscaping(t *testing.T) {
 
 	expectedDataset := map[string]string{
 		"foo":  "bar",
-		"buz":  `qux"foobar`,
+		"buz":  `qux"foo\bar`,
 		"hoge": "fuga",
 	}
 
