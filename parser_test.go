@@ -5,7 +5,7 @@ import (
 )
 
 func TestBasic(t *testing.T) {
-	result, err := ParseStrict(`foo:"bar" buz:"qux,foobar"`)
+	result, err := ParseStrict(`foo:"bar" buz:"qux,foo  bar"`)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -16,7 +16,7 @@ func TestBasic(t *testing.T) {
 
 	expectedDataset := map[string]string{
 		"foo": "bar",
-		"buz": "qux,foobar",
+		"buz": "qux,foo  bar",
 	}
 
 	for key, expected := range expectedDataset {
