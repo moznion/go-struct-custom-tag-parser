@@ -10,15 +10,20 @@ Synopsis
 
 ### with strict mode
 
-It raises an error when an unacceptable custom tag is given.
+It raises an error when an unacceptable custom tag is given on parsing.
 
 ```go
 package main
 
-import "github.com/moznion/go-struct-custom-tag-parser"
+import (
+	"fmt"
+	"log"
+
+	"github.com/moznion/go-struct-custom-tag-parser"
+)
 
 func main() {
-	result, err := Parse(`foo:"bar" buz:"qux,foobar"`, true)
+	result, err := tagparser.Parse(`foo:"bar" buz:"qux,foobar"`, true)
 	if err != nil {
 		log.Fatalf("unexpected error has come: %s", err)
 	}
@@ -33,10 +38,14 @@ It immediately returns the processed results until just before the invalid custo
 ```go
 package main
 
-import "github.com/moznion/go-struct-custom-tag-parser"
+import (
+	"fmt"
+
+	"github.com/moznion/go-struct-custom-tag-parser"
+)
 
 func main() {
-	result, _ := Parse(`foo:"bar" buz:"qux,foobar"`, false)
+	result, _ := tagparser.Parse(`foo:"bar" buz:"qux,foobar"`, false)
 	fmt.Printf("%v\n", result) // => map[foo:bar buz:qux,foobar]
 }
 ```
