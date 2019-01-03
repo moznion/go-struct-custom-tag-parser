@@ -36,7 +36,10 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 		if inKeyParsing {
 			if unicode.IsSpace(r) {
 				if keyCursor > 0 {
-					return nil, errors.New("invalid custom tag syntax: key must not contain any white space, but it contains")
+					if isStrict {
+						return nil, errors.New("invalid custom tag syntax: key must not contain any white space, but it contains")
+					}
+					return tagKeyValue, nil
 				}
 				continue
 			}
