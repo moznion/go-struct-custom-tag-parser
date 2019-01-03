@@ -1,7 +1,7 @@
 go-custom-tag-parser
 ==
 
-[![GoDoc](https://godoc.org/github.com/moznion/go-custom-tag-parser?status.svg)](https://godoc.org/github.com/moznion/go-custom-tag-parser)
+[![Build Status](https://travis-ci.org/moznion/go-custom-tag-parser.svg?branch=master)](https://travis-ci.org/moznion/go-custom-tag-parser) [![GoDoc](https://godoc.org/github.com/moznion/go-custom-tag-parser?status.svg)](https://godoc.org/github.com/moznion/go-custom-tag-parser)
 
 A simple parser for golang's custom tags.
 
