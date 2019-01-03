@@ -45,6 +45,14 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 				continue
 			}
 
+			if r == valueQuote {
+				if isStrict {
+					return nil, errors.New("invalid custom tag syntax: key must not contain any double quote, but it contains")
+				}
+				// give up when key contains any double quote
+				return tagKeyValue, nil
+			}
+
 			if r == keyValueDelimiter {
 				if keyCursor <= 0 {
 					if isStrict {
