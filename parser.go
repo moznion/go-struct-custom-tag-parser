@@ -40,7 +40,7 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 					if isStrict {
 						return nil, errors.New("invalid custom tag syntax: key must not contain any white space, but it contains")
 					}
-					return tagKeyValue, nil
+					break
 				}
 				continue
 			}
@@ -50,7 +50,7 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 					return nil, errors.New("invalid custom tag syntax: key must not contain any double quote, but it contains")
 				}
 				// give up when key contains any double quote
-				return tagKeyValue, nil
+				break
 			}
 
 			if r == keyValueDelimiter {
@@ -60,7 +60,7 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 					}
 
 					// if empty key has come, it should give up
-					return tagKeyValue, nil
+					break
 				}
 
 				inKeyParsing = false
@@ -69,13 +69,13 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 					if isStrict {
 						return nil, errors.New("invalid custom tag syntax: value must not be empty, but it gets empty")
 					}
-					return tagKeyValue, nil
+					break
 				}
 				if tagRunes[i] != valueQuote {
 					if isStrict {
 						return nil, errors.New("invalid custom tag syntax: quote for value is missing")
 					}
-					return tagKeyValue, nil
+					break
 				}
 				continue
 			}
@@ -110,14 +110,13 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 		valueCursor++
 	}
 
-	if inKeyParsing && keyCursor > 0 {
+	if inKeyParsing && keyCursor > 0 && isStrict {
 		return nil, errors.New("invalid custom tag syntax: a delimiter of key and value is missing")
 	}
 
-	if !inKeyParsing && valueCursor > 0 {
+	if !inKeyParsing && valueCursor > 0 && isStrict {
 		return nil, errors.New("invalid custom tag syntax: a value is not terminated with quote")
 	}
 
 	return tagKeyValue, nil
-
 }
