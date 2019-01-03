@@ -5,7 +5,7 @@ import (
 )
 
 func TestBasic(t *testing.T) {
-	result, err := Parse(`foo:"bar" buz:"qux,foobar"`)
+	result, err := ParseStrict(`foo:"bar" buz:"qux,foobar"`)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -27,7 +27,7 @@ func TestBasic(t *testing.T) {
 }
 
 func TestWithEscaping(t *testing.T) {
-	result, err := Parse(`foo:"bar" buz:"qux\"foobar" hoge:"fuga"`)
+	result, err := ParseStrict(`foo:"bar" buz:"qux\"foobar" hoge:"fuga"`)
 
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
@@ -51,7 +51,7 @@ func TestWithEscaping(t *testing.T) {
 }
 
 func TestPragmaticExample(t *testing.T) {
-	result, err := Parse(`protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty" datastore:"email" goon:"id"`)
+	result, err := ParseStrict(`protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty" datastore:"email" goon:"id"`)
 
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
@@ -76,7 +76,7 @@ func TestPragmaticExample(t *testing.T) {
 }
 
 func TestWithMultiByte(t *testing.T) {
-	result, err := Parse(`foo:"bar" buz:"qux,すごい,foobar"`)
+	result, err := ParseStrict(`foo:"bar" buz:"qux,すごい,foobar"`)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -98,31 +98,31 @@ func TestWithMultiByte(t *testing.T) {
 }
 
 func TestShouldRaiseErrorWhenKeyIsEmpty(t *testing.T) {
-	if _, err := Parse(`foo:"bar" :"qux"`); err == nil {
+	if _, err := ParseStrict(`foo:"bar" :"qux"`); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }
 
 func TestShouldRaiseErrorWhenValueIsEmpty(t *testing.T) {
-	if _, err := Parse(`foo:"bar" buz:`); err == nil {
+	if _, err := ParseStrict(`foo:"bar" buz:`); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }
 
 func TestShouldRaiseErrorWhenKeyValueDelimiterIsMissing(t *testing.T) {
-	if _, err := Parse(`foo:"bar" buz`); err == nil {
+	if _, err := ParseStrict(`foo:"bar" buz`); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }
 
 func TestShouldRaiseErrorWhenValueIsNotTerminated(t *testing.T) {
-	if _, err := Parse(`foo:"bar" buz:"qux`); err == nil {
+	if _, err := ParseStrict(`foo:"bar" buz:"qux`); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }
 
 func TestShouldRaiseErrorWhenKeyContainsWhiteSpace(t *testing.T) {
-	if _, err := Parse(`foo:"bar"  bu z:"qux"`); err == nil {
+	if _, err := ParseStrict(`foo:"bar"  bu z:"qux"`); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }

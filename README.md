@@ -14,7 +14,7 @@ package main
 import "github.com/moznion/go-custom-tag-parser"
 
 func main() {
-	result, err := Parse(`foo:"bar" buz:"qux,foobar"`)
+	result, err := ParseStrict(`foo:"bar" buz:"qux,foobar"`)
 	if err != nil {
 		log.Fatalf("unexpected error has come: %s", err)
 	}

@@ -5,9 +5,10 @@ import (
 	"unicode"
 )
 
-// Parse parses a custom tag string.
-func Parse(tagString string) (map[string]string, error) {
-	return parse(tagString, false)
+// ParseStrict parses a custom tag string with strict mode.
+// Strict mode means; it raises an error when given unacceptable custom tag string.
+func ParseStrict(tagString string) (map[string]string, error) {
+	return parse(tagString, true)
 }
 
 func parse(tagString string, isStrict bool) (map[string]string, error) {

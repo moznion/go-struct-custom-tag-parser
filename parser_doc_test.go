@@ -5,8 +5,8 @@ import (
 	"log"
 )
 
-func ExampleParse() {
-	result, err := Parse(`foo:"bar" buz:"qux,foobar"`)
+func ExampleParseStrict() {
+	result, err := ParseStrict(`foo:"bar" buz:"qux,foobar"`)
 	if err != nil {
 		log.Fatalf("unexpected error has come: %s", err)
 	}
