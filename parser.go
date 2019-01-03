@@ -6,6 +6,7 @@ import (
 )
 
 const valueQuote = '"'
+const keyValueDelimiter = ':'
 
 func Parse(tagString string) (map[string]string, error) {
 	return parse(tagString, false)
@@ -44,7 +45,7 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 				continue
 			}
 
-			if r == ':' {
+			if r == keyValueDelimiter {
 				if keyCursor <= 0 {
 					if isStrict {
 						return nil, errors.New("invalid custom tag syntax: key must not be empty, but it gets empty")
