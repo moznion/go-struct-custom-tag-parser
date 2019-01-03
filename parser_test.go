@@ -324,3 +324,21 @@ func TestGiveUpWhenValueIsNotTerminated(t *testing.T) {
 		t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
 	}
 }
+
+func TestDuplicatedKey(t *testing.T) {
+	result, err := Parse(`foo:"bar" hoge:"" foo:"buz" hoge:"test"`, true)
+	if err != nil {
+		t.Fatalf("unexpected error has come: %s", err)
+	}
+
+	expectedDataset := map[string]string{
+		"foo":  "bar",
+		"hoge": "",
+	}
+
+	for key, expected := range expectedDataset {
+		if got := result[key]; got != expected {
+			t.Errorf(`parsed result of "%s" is not correct: expected = "%s", got = "%s"`, key, expected, got)
+		}
+	}
+}

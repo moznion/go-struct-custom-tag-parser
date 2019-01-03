@@ -23,6 +23,7 @@ func Parse(tagString string, isStrict bool) (map[string]string, error) {
 	isEscaping := false
 
 	tagKeyValue := make(map[string]string)
+	tagSetMarker := make(map[string]bool)
 
 	tagRunes := []rune(tagString)
 	tagRunesLen := len(tagRunes)
@@ -81,7 +82,11 @@ func Parse(tagString string, isStrict bool) (map[string]string, error) {
 
 		// value parsing
 		if !isEscaping && r == valueQuote {
-			tagKeyValue[string(key[:keyCursor])] = string(value[:valueCursor])
+			keyStr := string(key[:keyCursor])
+			if !tagSetMarker[keyStr] {
+				tagSetMarker[keyStr] = true
+				tagKeyValue[keyStr] = string(value[:valueCursor])
+			}
 			key = key[:0]
 			keyCursor = 0
 			value = value[:0]
