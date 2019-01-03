@@ -5,7 +5,7 @@ import (
 )
 
 func TestBasic(t *testing.T) {
-	result, err := ParseStrict(`foo:"bar" buz:"qux,foo  bar"`)
+	result, err := Parse(`foo:"bar" buz:"qux,foo  bar"`, true)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -27,7 +27,7 @@ func TestBasic(t *testing.T) {
 }
 
 func TestWithEscaping(t *testing.T) {
-	result, err := ParseStrict(`foo:"bar" buz:"qux\"foo\\bar" hoge:"fuga"`)
+	result, err := Parse(`foo:"bar" buz:"qux\"foo\\bar" hoge:"fuga"`, true)
 
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
@@ -51,7 +51,7 @@ func TestWithEscaping(t *testing.T) {
 }
 
 func TestPragmaticExample(t *testing.T) {
-	result, err := ParseStrict(`protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty" datastore:"email" goon:"id"`)
+	result, err := Parse(`protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty" datastore:"email" goon:"id"`, true)
 
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
@@ -76,7 +76,7 @@ func TestPragmaticExample(t *testing.T) {
 }
 
 func TestWithMultiByte(t *testing.T) {
-	result, err := ParseStrict(`foo:"bar" buz:"qux,すごい,foobar"`)
+	result, err := Parse(`foo:"bar" buz:"qux,すごい,foobar"`, true)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -98,37 +98,37 @@ func TestWithMultiByte(t *testing.T) {
 }
 
 func TestShouldRaiseErrorWhenKeyIsEmpty(t *testing.T) {
-	if _, err := ParseStrict(`foo:"bar" :"qux"`); err == nil {
+	if _, err := Parse(`foo:"bar" :"qux"`, true); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }
 
 func TestShouldRaiseErrorWhenValueIsEmpty(t *testing.T) {
-	if _, err := ParseStrict(`foo:"bar" buz:`); err == nil {
+	if _, err := Parse(`foo:"bar" buz:`, true); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }
 
 func TestShouldRaiseErrorWhenKeyValueDelimiterIsMissing(t *testing.T) {
-	if _, err := ParseStrict(`foo:"bar" buz`); err == nil {
+	if _, err := Parse(`foo:"bar" buz`, true); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }
 
 func TestShouldRaiseErrorWhenValueIsNotTerminated(t *testing.T) {
-	if _, err := ParseStrict(`foo:"bar" buz:"qux`); err == nil {
+	if _, err := Parse(`foo:"bar" buz:"qux`, true); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }
 
 func TestShouldRaiseErrorWhenKeyContainsWhiteSpace(t *testing.T) {
-	if _, err := ParseStrict(`foo:"bar"  bu z:"qux"`); err == nil {
+	if _, err := Parse(`foo:"bar"  bu z:"qux"`, true); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }
 
 func TestGiveUpWhenKeyIsOmitted(t *testing.T) {
-	result, err := Parse(`:"bar" buz:"qux" foobar:"hoge"`)
+	result, err := Parse(`:"bar" buz:"qux" foobar:"hoge"`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -137,7 +137,7 @@ func TestGiveUpWhenKeyIsOmitted(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" :"qux" foobar:"hoge"`)
+	result, err = Parse(`foo:"bar" :"qux" foobar:"hoge"`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -154,13 +154,13 @@ func TestGiveUpWhenKeyIsOmitted(t *testing.T) {
 }
 
 func TestShouldRaiseErrorWhenQuoteForValueIsMissing(t *testing.T) {
-	if _, err := ParseStrict(`foo:"bar"  buz:qux"`); err == nil {
+	if _, err := Parse(`foo:"bar"  buz:qux"`, true); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }
 
 func TestGiveUpWhenValueQuoteIsMissing(t *testing.T) {
-	result, err := Parse(`foo:bar" buz:"qux" foobar:"hoge"`)
+	result, err := Parse(`foo:bar" buz:"qux" foobar:"hoge"`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -169,7 +169,7 @@ func TestGiveUpWhenValueQuoteIsMissing(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" buz:qux" foobar:"hoge"`)
+	result, err = Parse(`foo:"bar" buz:qux" foobar:"hoge"`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -186,7 +186,7 @@ func TestGiveUpWhenValueQuoteIsMissing(t *testing.T) {
 }
 
 func TestGiveUpWhenValueIsMissing(t *testing.T) {
-	result, err := Parse(`foo:`)
+	result, err := Parse(`foo:`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -195,7 +195,7 @@ func TestGiveUpWhenValueIsMissing(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" buz:`)
+	result, err = Parse(`foo:"bar" buz:`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -212,7 +212,7 @@ func TestGiveUpWhenValueIsMissing(t *testing.T) {
 }
 
 func TestGiveUpWhenKeyContainsWhiteSpace(t *testing.T) {
-	result, err := Parse(`f oo:"bar" buz:"qux" foobar:"hoge"`)
+	result, err := Parse(`f oo:"bar" buz:"qux" foobar:"hoge"`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -221,7 +221,7 @@ func TestGiveUpWhenKeyContainsWhiteSpace(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" b uz:"qux" foobar:"hoge"`)
+	result, err = Parse(`foo:"bar" b uz:"qux" foobar:"hoge"`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -238,17 +238,17 @@ func TestGiveUpWhenKeyContainsWhiteSpace(t *testing.T) {
 }
 
 func TestShouldRaiseErrorWhenKeyContainsDoubleQuote(t *testing.T) {
-	if _, err := ParseStrict(`"foo":"bar"  buz:"qux"`); err == nil {
+	if _, err := Parse(`"foo":"bar"  buz:"qux"`, true); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 
-	if _, err := ParseStrict(`foo:"bar"  "buz":"qux"`); err == nil {
+	if _, err := Parse(`foo:"bar"  "buz":"qux"`, true); err == nil {
 		t.Fatal("expected error has not raised")
 	}
 }
 
 func TestGiveUpWhenKeyContainsDoubleQuote(t *testing.T) {
-	result, err := Parse(`"foo":"bar" buz:"qux" foobar:"hoge"`)
+	result, err := Parse(`"foo":"bar" buz:"qux" foobar:"hoge"`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -257,7 +257,7 @@ func TestGiveUpWhenKeyContainsDoubleQuote(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" "buz":"qux" foobar:"hoge"`)
+	result, err = Parse(`foo:"bar" "buz":"qux" foobar:"hoge"`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -274,7 +274,7 @@ func TestGiveUpWhenKeyContainsDoubleQuote(t *testing.T) {
 }
 
 func TestGiveUpWhenKeyIsNotTerminated(t *testing.T) {
-	result, err := Parse(`foo`)
+	result, err := Parse(`foo`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -283,7 +283,7 @@ func TestGiveUpWhenKeyIsNotTerminated(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" buz`)
+	result, err = Parse(`foo:"bar" buz`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -300,7 +300,7 @@ func TestGiveUpWhenKeyIsNotTerminated(t *testing.T) {
 }
 
 func TestGiveUpWhenValueIsNotTerminated(t *testing.T) {
-	result, err := Parse(`foo:"bar`)
+	result, err := Parse(`foo:"bar`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}
@@ -309,7 +309,7 @@ func TestGiveUpWhenValueIsNotTerminated(t *testing.T) {
 		t.Fatal("got non empty map")
 	}
 
-	result, err = Parse(`foo:"bar" "buz":"qux`)
+	result, err = Parse(`foo:"bar" "buz":"qux`, false)
 	if err != nil {
 		t.Fatalf("unexpected error has come: %s", err)
 	}

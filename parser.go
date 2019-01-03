@@ -8,17 +8,12 @@ import (
 const valueQuote = '"'
 const keyValueDelimiter = ':'
 
-func Parse(tagString string) (map[string]string, error) {
-	return parse(tagString, false)
-}
-
-// ParseStrict parses a custom tag string with strict mode.
-// Strict mode means; it raises an error when given unacceptable custom tag string.
-func ParseStrict(tagString string) (map[string]string, error) {
-	return parse(tagString, true)
-}
-
-func parse(tagString string, isStrict bool) (map[string]string, error) {
+// Parse parses a custom tag string.
+//
+// Strict mode is a mode selector:
+// It raises an error when given unacceptable custom tag string when the mode is true.
+// On the other hand, if the mode is false, it immediately returns the processed results until just before the invalid custom tag syntax.
+func Parse(tagString string, isStrict bool) (map[string]string, error) {
 	key := make([]rune, 0, 100)
 	keyCursor := 0
 	value := make([]rune, 0, 100)
