@@ -1,13 +1,9 @@
 language: go
 
 go:
-  - 1.9
   - '1.10'
   - 1.11
   - master
-
-install:
-  - go get -u github.com/golang/lint/golint
 
 script: make check
 
