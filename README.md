@@ -1,9 +1,9 @@
-go-custom-tag-parser
+go-struct-custom-tag-parser
 ==
 
-[![Build Status](https://travis-ci.org/moznion/go-custom-tag-parser.svg?branch=master)](https://travis-ci.org/moznion/go-custom-tag-parser) [![GoDoc](https://godoc.org/github.com/moznion/go-custom-tag-parser?status.svg)](https://godoc.org/github.com/moznion/go-custom-tag-parser)
+[![Build Status](https://travis-ci.org/moznion/go-struct-custom-tag-parser.svg?branch=master)](https://travis-ci.org/moznion/go-struct-custom-tag-parser) [![GoDoc](https://godoc.org/github.com/moznion/go-struct-custom-tag-parser?status.svg)](https://godoc.org/github.com/moznion/go-struct-custom-tag-parser)
 
-A simple parser for golang's custom tags.
+A simple parser for golang's struct custom tags.
 
 Synopsis
 --
@@ -15,7 +15,7 @@ It raises an error when an unacceptable custom tag is given.
 ```go
 package main
 
-import "github.com/moznion/go-custom-tag-parser"
+import "github.com/moznion/go-struct-custom-tag-parser"
 
 func main() {
 	result, err := Parse(`foo:"bar" buz:"qux,foobar"`, true)
@@ -33,7 +33,7 @@ It immediately returns the processed results until just before the invalid custo
 ```go
 package main
 
-import "github.com/moznion/go-custom-tag-parser"
+import "github.com/moznion/go-struct-custom-tag-parser"
 
 func main() {
 	result, _ := Parse(`foo:"bar" buz:"qux,foobar"`, false)

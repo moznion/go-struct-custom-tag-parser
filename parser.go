@@ -8,7 +8,7 @@ import (
 const valueQuote = '"'
 const keyValueDelimiter = ':'
 
-// Parse parses a custom tag string.
+// Parse parses a custom tag string of struct.
 //
 // Strict mode is a mode selector:
 // It raises an error when an unacceptable custom tag string is given if the mode is true.
