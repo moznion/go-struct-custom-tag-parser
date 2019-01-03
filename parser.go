@@ -7,10 +7,15 @@ import (
 
 // Parse parses a custom tag string.
 func Parse(tagString string) (map[string]string, error) {
+	return parse(tagString, false)
+}
+
+func parse(tagString string, isStrict bool) (map[string]string, error) {
 	key := make([]rune, 0, 100)
 	keyCursor := 0
 	value := make([]rune, 0, 100)
 	valueCursor := 0
+
 	inKeyParsing := true
 	isEscaping := false
 	var valueTerminator rune
