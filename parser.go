@@ -5,6 +5,10 @@ import (
 	"unicode"
 )
 
+func Parse(tagString string) (map[string]string, error) {
+	return parse(tagString, false)
+}
+
 // ParseStrict parses a custom tag string with strict mode.
 // Strict mode means; it raises an error when given unacceptable custom tag string.
 func ParseStrict(tagString string) (map[string]string, error) {
@@ -38,7 +42,12 @@ func parse(tagString string, isStrict bool) (map[string]string, error) {
 
 			if r == ':' {
 				if keyCursor <= 0 {
-					return nil, errors.New("invalid custom tag syntax: key must not be empty, but it gets empty")
+					if isStrict {
+						return nil, errors.New("invalid custom tag syntax: key must not be empty, but it gets empty")
+					}
+
+					// if empty key has come, it should give up
+					return tagKeyValue, nil
 				}
 
 				inKeyParsing = false
