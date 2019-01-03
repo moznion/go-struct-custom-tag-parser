@@ -11,8 +11,8 @@ const keyValueDelimiter = ':'
 // Parse parses a custom tag string.
 //
 // Strict mode is a mode selector:
-// It raises an error when given unacceptable custom tag string when the mode is true.
-// On the other hand, if the mode is false, it immediately returns the processed results until just before the invalid custom tag syntax.
+// It raises an error when an unacceptable custom tag string is given if the mode is true.
+// On the other hand, if the mode is false, it immediately returns the processed results until just before the invalid custom tag syntax. It never raises any error.
 func Parse(tagString string, isStrict bool) (map[string]string, error) {
 	key := make([]rune, 0, 100)
 	keyCursor := 0

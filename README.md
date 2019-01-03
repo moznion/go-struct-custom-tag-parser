@@ -8,16 +8,35 @@ A simple parser for golang's custom tags.
 Synopsis
 --
 
+### with strict mode
+
+It raises an error when an unacceptable custom tag is given.
+
 ```go
 package main
 
 import "github.com/moznion/go-custom-tag-parser"
 
 func main() {
-	result, err := ParseStrict(`foo:"bar" buz:"qux,foobar"`)
+	result, err := Parse(`foo:"bar" buz:"qux,foobar"`, true)
 	if err != nil {
 		log.Fatalf("unexpected error has come: %s", err)
 	}
+	fmt.Printf("%v\n", result) // => map[foo:bar buz:qux,foobar]
+}
+```
+
+### with no strict mode
+
+It immediately returns the processed results until just before the invalid custom tag syntax. It never raises any error.
+
+```go
+package main
+
+import "github.com/moznion/go-custom-tag-parser"
+
+func main() {
+	result, _ := Parse(`foo:"bar" buz:"qux,foobar"`, false)
 	fmt.Printf("%v\n", result) // => map[foo:bar buz:qux,foobar]
 }
 ```
