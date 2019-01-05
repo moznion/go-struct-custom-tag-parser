@@ -8,7 +8,7 @@ A simple parser for golang's struct custom tags.
 STOP!!!!
 --
 
-You don't have to use this library. You should use [reflect.StructTag](https://golang.org/pkg/reflect/#StructTag).
+You don't have to use this library. You should use [reflect.StructTag](https://golang.org/pkg/reflect/#StructTag) instead of this.
 
 This library's processing time is slower than reflect's one.
 
