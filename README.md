@@ -5,6 +5,27 @@ go-struct-custom-tag-parser
 
 A simple parser for golang's struct custom tags.
 
+STOP!!!!
+--
+
+You don't have to use this library. You should use [reflect.StructTag](https://golang.org/pkg/reflect/#StructTag).
+
+This library's processing time is slower than reflect's one.
+
+```
+goos: darwin
+goarch: amd64
+pkg: github.com/moznion/go-struct-custom-tag-parser/author
+BenchmarkParser-4        1000000              1932 ns/op             848 B/op         11 allocs/op
+BenchmarkReflect-4      10000000               140 ns/op               0 B/op          0 allocs/op
+PASS
+ok      github.com/moznion/go-struct-custom-tag-parser/author   4.484s
+```
+
+(benchmark code is here: [author/parser_bench_test.go](/author/parser_bench_test.go))
+
+__There is only one reason for using this library, this has a feature to check the syntax of custom tag (in strict mode, `Parse()` returns an error when a custom tag is an invalid syntax).__
+
 Synopsis
 --
 
